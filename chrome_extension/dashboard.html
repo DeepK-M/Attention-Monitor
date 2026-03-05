@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attention Monitor</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    width: 380px;
+    min-height: 500px;
+    background: #0D0F1A;
+    color: #E8EAF6;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #00E5A0;
+    box-shadow: 0 0 8px #00E5A0;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:0.5; transform:scale(0.8); }
+  }
+
+  .status-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(0,229,160,0.1);
+    color: #00E5A0;
+    border: 1px solid rgba(0,229,160,0.3);
+  }
+
+  .status-badge.offline {
+    background: rgba(255,95,126,0.1);
+    color: #FF5F7E;
+    border-color: rgba(255,95,126,0.3);
+  }
+
+  /* ── Stats row ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .stat {
+    padding: 12px 8px;
+    text-align: center;
+    background: #0D0F1A;
+  }
+
+  .stat-val {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: #6B7280;
+  }
+
+  /* ── Distribution bar ── */
+  .dist-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .dist-label {
+    font-size: 10px;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .dist-bar {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    gap: 2px;
+    margin-bottom: 8px;
+  }
+
+  .dist-seg { height: 100%; transition: width 0.5s; border-radius: 2px; }
+
+  .dist-legend {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: #9CA3AF;
+  }
+
+  .legend-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  /* ── Student list ── */
+  .list-section {
+    padding: 12px 16px;
+  }
+
+  .list-label {
+    font-size: 10px;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .student-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #141726;
+    margin-bottom: 6px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .student-icon { font-size: 20px; }
+
+  .student-info { flex: 1; }
+
+  .student-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .student-state {
+    font-size: 10px;
+    color: #6B7280;
+  }
+
+  .student-score {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  /* ── Alerts ── */
+  .alerts-section {
+    padding: 0 16px 12px;
+  }
+
+  .alert {
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    line-height: 1.5;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .alert-frustrated {
+    background: rgba(255,95,126,0.08);
+    border: 1px solid rgba(255,95,126,0.2);
+    color: #FFA0B4;
+  }
+
+  .alert-confused {
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(56,189,248,0.2);
+    color: #7DD3F8;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .btn {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: Arial, sans-serif;
+  }
+
+  .btn-primary {
+    background: #00E5A0;
+    color: #0D0F1A;
+  }
+
+  .btn-secondary {
+    background: #1C2035;
+    color: #E8EAF6;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  /* ── Empty state ── */
+  .empty {
+    padding: 40px 16px;
+    text-align: center;
+    color: #6B7280;
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 13px; line-height: 1.6; }
+
+  /* ── Server offline ── */
+  .offline-msg {
+    padding: 12px 16px;
+    background: rgba(255,95,126,0.08);
+    border-bottom: 1px solid rgba(255,95,126,0.2);
+    color: #FFA0B4;
+    font-size: 11px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">
+    <div class="dot"></div>
+    Attention Monitor
+  </div>
+  <div class="status-badge" id="statusBadge">● LIVE</div>
+</div>
+
+<!-- Server offline message -->
+<div class="offline-msg" id="offlineMsg" style="display:none">
+  ⚠️ Cannot connect to server — make sure Flask is running on port 5000
+</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val" id="avgScore" style="color:#00E5A0">--</div>
+    <div class="stat-lbl">Avg Score</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="totalStudents">0</div>
+    <div class="stat-lbl">Students</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="alertCount" style="color:#FF5F7E">0</div>
+    <div class="stat-lbl">Alerts</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val" id="attentiveCount" style="color:#00E5A0">0</div>
+    <div class="stat-lbl">Attentive</div>
+  </div>
+</div>
+
+<!-- Distribution -->
+<div class="dist-section">
+  <div class="dist-label">Attention Distribution</div>
+  <div class="dist-bar">
+    <div class="dist-seg" id="barAttentive"
+         style="background:#00E5A0; width:0%"></div>
+    <div class="dist-seg" id="barConfused"
+         style="background:#38BDF8; width:0%"></div>
+    <div class="dist-seg" id="barBored"
+         style="background:#FFB830; width:0%"></div>
+    <div class="dist-seg" id="barFrustrated"
+         style="background:#FF5F7E; width:0%"></div>
+  </div>
+  <div class="dist-legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#00E5A0"></div>Attentive
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#38BDF8"></div>Confused
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#FFB830"></div>Bored
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#FF5F7E"></div>Frustrated
+    </div>
+  </div>
+</div>
+
+<!-- Student List -->
+<div class="list-section">
+  <div class="list-label">Students</div>
+  <div id="studentList">
+    <div class="empty">
+      <div class="empty-icon">🎓</div>
+      <div class="empty-text">
+        Open Google Meet to start<br>monitoring students
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Alerts -->
+<div class="alerts-section" id="alertsSection" style="display:none">
+  <div class="list-label">⚠️ Alerts</div>
+  <div id="alertsList"></div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="btn btn-secondary" id="btnStop">⏸ Pause</button>
+  <button class="btn btn-primary"   id="btnExport">📊 Export</button>
+</div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

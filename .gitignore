@@ -1,0 +1,48 @@
+# Virtual Environments
+venv/
+flask_server/venv/
+
+# Large Model Files
+flask_server/models/
+*.pkl
+*.safetensors
+*.yaml
+*.onnx
+
+# Python Binaries
+*.dll
+*.pyd
+*.so
+__pycache__/
+
+# --- Python / Flask ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+.venv
+env/
+instance/
+.pytest_cache/
+
+# --- Machine Learning Models & Large Files ---
+# We generally avoid pushing heavy .pkl or model weights to GitHub. 
+# If you want to keep them local and only push the code:
+flask_server/models/*.pkl
+flask_server/models/*.yaml
+flask_server/models/distilbert_nlp_final/
+
+# --- Debug Images ---
+# These look like local test images
+flask_server/debug_no_face_*.jpg
+
+# --- OS / IDE Specific ---
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# --- Extension / Web ---
+node_modules/
+.chrome-extension-key.pem
