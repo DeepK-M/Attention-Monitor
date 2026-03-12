@@ -177,9 +177,6 @@ All processing is done **locally on your machine**. No video or audio data is se
 
 ---
 
-## 👨‍💻 Authors
-- Deep Maheshwari
-- Gauri Dongare
 
-Symbiosis Institute of Technology, Pune
+
 "# Attention-Monitor" 
