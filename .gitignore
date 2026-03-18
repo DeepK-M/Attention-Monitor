@@ -2,12 +2,12 @@
 venv/
 flask_server/venv/
 Diagrams/
-# Large Model Files
-flask_server/models/
-*.pkl
-*.safetensors
-*.yaml
-*.onnx
+# # Large Model Files
+# flask_server/models/
+# *.pkl
+# *.safetensors
+# *.yaml
+# *.onnx
 
 # Python Binaries
 *.dll
