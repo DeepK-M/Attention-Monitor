@@ -1,7 +1,7 @@
 # Virtual Environments
 venv/
 flask_server/venv/
-
+Diagrams/
 # Large Model Files
 flask_server/models/
 *.pkl
@@ -29,9 +29,7 @@ instance/
 # --- Machine Learning Models & Large Files ---
 # We generally avoid pushing heavy .pkl or model weights to GitHub. 
 # If you want to keep them local and only push the code:
-flask_server/models/*.pkl
-flask_server/models/*.yaml
-flask_server/models/distilbert_nlp_final/
+
 
 # --- Debug Images ---
 # These look like local test images
