@@ -131,6 +131,59 @@ attention-monitor/
 └── README.md
 ```
 
+## Sequence Diagram
+```text
+User in Google Meet
+-> content.js
+-> captures video frames + optional text
+-> POST /predict to Flask server
+Flask app.py
+-> feature_extractor.py
+-> vision model loading/inference
+-> DistilBERT NLP model
+-> fusion.py
+Flask app.py
+-> returns final_label, attention_score, vision, nlp
+content.js
+-> updates Meet overlay badges
+-> stores studentData in chrome.storage.local
+dashboard.js
+-> reads chrome.storage.local
+-> refreshes teacher dashboard
+dashboard.js
+-> GET /health to Flask server
+```
+
+
+
+## SVG-Style Layout
+```text
+[Google Meet Tab]
+├─ content.js
+│ ├─ detect tiles
+│ ├─ capture frames
+│ ├─ collect text
+│ └─ send request
+└─ overlay badges
+
+[Chrome Extension Popup]
+├─ dashboard.html
+├─ dashboard.js
+└─ reads session data from storage
+
+[Local Flask Server :5000]
+├─ app.py
+├─ /predict
+│ ├─ feature_extractor.py
+│ ├─ vision_model.py
+│ ├─ DistilBERT NLP model
+│ └─ fusion.py
+├─ /predict_text
+└─ /health
+
+```
+
+
 ## Notes
 
 - All processing is local to your machine.
