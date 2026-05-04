@@ -1,6 +1,7 @@
 # feature_extractor.py — Extracts 28 features from video frames
 import cv2
 import numpy as np
+import os
 
 # ── Landmark indices (68-point LBF model) ──
 L_EYE_IDX  = [42, 43, 44, 45, 46, 47]
@@ -23,7 +24,8 @@ FACE_3D = np.array([
 face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 landmark_det = cv2.face.createFacemarkLBF()
-landmark_det.loadModel('models/lbfmodel.yaml')
+_MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
+landmark_det.loadModel(os.path.join(_MODELS_DIR, 'lbfmodel.yaml'))
 
 print("✅ Face detector loaded!")
 print("✅ Landmark detector loaded!")

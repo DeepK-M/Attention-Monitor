@@ -202,23 +202,52 @@ def fuse(vision_result, nlp_result, student_text):
     best_score = signals[best_cls]
     score_map  = {'Attentive': 100, 'Bored': 40, 'Confused': 60, 'Frustrated': 20}
 
-    # ✅ Priority 0 — strong text signal overrides everything
-    if best_score >= 0.4:
+    def _attention_score(label, probs, vision_label, vision_confidence, nlp_label, nlp_confidence):
+        sorted_probs = np.sort(np.asarray(probs, dtype=float))
+        top_prob = float(sorted_probs[-1]) if len(sorted_probs) else 0.0
+        second_prob = float(sorted_probs[-2]) if len(sorted_probs) > 1 else 0.0
+        margin = max(top_prob - second_prob, 0.0)
+        # Tuned constants to expand score spread, especially for 'Attentive'.
+        base_map = {'Attentive': 50.0, 'Bored': 40.0, 'Confused': 45.0, 'Frustrated': 32.0}
+        TOP_MULT  = 35.0
+        MARGIN_M  = 30.0
+        VISION_M  = 12.0
+        NLP_M     = 6.0
+
+        score = base_map[label]
+        score += top_prob * TOP_MULT
+        score += margin * MARGIN_M
+        score += vision_confidence * VISION_M
+        score += nlp_confidence * NLP_M
+
+        # Small bonuses for agreement with individual modalities
+        if label == vision_label:
+            score += 3.0
+        if label == nlp_label:
+            score += 1.5
+
+        return round(max(0.0, min(100.0, score)), 1)
+
+    # Text is only an advisory signal here. Let vision lead unless text is
+    # very explicit and the vision model is already uncertain.
+    if best_score >= 0.75 and vc < 0.55:
         if not (best_cls == 'Bored' and vl == 'Attentive'):
             if not (best_cls == 'Attentive' and vl == 'Bored' and brd > 0.2):
-                confidence = min(0.5 + best_score * 0.5, 0.95)
-                att_score  = int(score_map[best_cls] * confidence +
-                                 score_map[best_cls] * (1 - confidence) * 0.5)
+                confidence = min(0.55 + best_score * 0.35, 0.95)
+                att_score  = round(
+                    score_map[best_cls] * confidence +
+                    score_map[best_cls] * (1 - confidence) * 0.5,
+                    1
+                )
                 return _result(best_cls, att_score, confidence, vl, nl)
 
-    # ✅ Priority 1 — if text provided trust NLP much more
+    # Vision-first blending: text can nudge the label, but it should not
+    # outweigh the camera signal in the live monitor.
     if student_text.strip():
         if nc > 0.6:
-            # NLP is confident and has text — trust it 80%
-            fp = 0.2 * vp + 0.8 * np_
+            fp = 0.75 * vp + 0.25 * np_
         else:
-            # NLP less confident — 40/60 split
-            fp = 0.4 * vp + 0.6 * np_
+            fp = 0.85 * vp + 0.15 * np_
 
     # ✅ Priority 2 — no text, vision only rules
     else:
@@ -237,7 +266,7 @@ def fuse(vision_result, nlp_result, student_text):
     pid       = int(np.argmax(fp))
     label     = classes[pid]
     confidence= float(fp[pid])
-    att_score = int(score_map[label]*confidence + score_map[label]*(1-confidence)*0.5)
+    att_score = _attention_score(label, fp, vl, vc, nl, nc)
     return _result(label, att_score, confidence, vl, nl)
 
 
