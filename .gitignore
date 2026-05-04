@@ -44,3 +44,7 @@ flask_server/debug_no_face_*.jpg
 # --- Extension / Web ---
 node_modules/
 .chrome-extension-key.pem
+
+flask_server/models/
+*.pkl
+*.safetensors
